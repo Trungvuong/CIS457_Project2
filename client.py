@@ -58,7 +58,7 @@ def quit(ftp):
 def main():
     ftp_connection=None
     while ftp_connection is None:
-        server_name, port_num = welcome()
+        server_name, port_num = start()
         try:
             ftp_connection = create_client(server_name, port_num)
         except ftplib.all_errors:
