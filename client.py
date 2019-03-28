@@ -42,7 +42,7 @@ def retrieve(ftp):
 def store(ftp):
     filename=input("Enter filename you want to store:\n")
     try:
-        ftp.storbinary('STOR ' + filename, open(filename, 'rb'))
+        ftp.storbinary("STOR "+ filename, open(filename, 'r'))
     except IOError:
         print("File does not exist \n")
     except ftplib.all_errors:
@@ -60,7 +60,7 @@ def main():
     while ftp_connection is None:
         server_name, port_num = start()
         try:
-            ftp_connection = create_client(server_name, port_num)
+            ftp_connection = make_client(server_name, port_num)
         except ftplib.all_errors:
             print("Could not connect to server, try again\n")
             ftp_connection = None
@@ -69,13 +69,13 @@ def main():
     while command != "quit":
         command = input("Enter Command: LIST, RETRIEVE, STORE, QUIT: ")
         if command.lower() == "list":
-            list_files(ftp_connection)
+            filelist(ftp_connection)
         elif command.lower() == "retrieve":
             retrieve(ftp_connection)
         elif command.lower() == "store":
             store(ftp_connection)
         elif command.lower() == "quit":
-            quit_connection(ftp_connection)
+            quit(ftp_connection)
             command = "quit"
         else:
             print("Invalid command, please try again\n\n")
