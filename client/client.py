@@ -46,7 +46,11 @@ def retrieve(ftp):
 
 # Stores file in server
 def store(ftp):
+<<<<<<< HEAD
     filename = input("Enter the name of file to be stored \n")
+=======
+    filename=input("Enter the name of file to be stored\n")
+>>>>>>> a4809246e2e3af715af90a87ec8221f8a3765109
     try:
         ftp.storbinary('STOR ' + filename, open(filename, 'rb'))
         print('Upload successful for ' + filename)
