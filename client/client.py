@@ -46,11 +46,10 @@ def retrieve(ftp):
 
 # Stores file in server
 def store(ftp):
-    filename=input("Enter filename you want to store:\n")
-    filename = filename.strip('\n')
+    filename=input("Enter the name of file to be stored\n")
     try:
-        ftp.storbinary('STOR '.format(filename), open(filename, 'rb').read)
-        localfile.close()
+        ftp.storbinary('STOR ' + filename, open(filename, 'rb'))
+        print('Upload successful for ' + filename)
     except IOError:
         print("File does not exist \n")
     except ftplib.error_reply:
