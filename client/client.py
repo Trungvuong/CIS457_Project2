@@ -1,16 +1,22 @@
-import ftplib
+''' 
+This runs the client side of our FTP Server connection 
+we have created.
 
+@author Trung-Vuong Pham, Ryan Eisenbarth, and Kevin Holekboer
+'''
+
+import ftplib
 
 # Start of client FTP Server connection
 def start():
-    server_name=input("Please enter the server name:\n")
-    port_num=input("Please enter the port number:\n")
+    server_name = input("Please enter the server hostname name:\n")
+    port_num = input("Please enter the port number for this server:\n")  
     return server_name, port_num
 
-# Start of central FTP Server connection
+# Start of centralized FTP Server connection
 def centralstart():
-    server_name=input("Please enter the server name:\n")
-    port_num=input("Please enter the port number:\n")
+    server_name=input("Please enter the centralized server's name:\n")
+    port_num=input("Please enter the port number for this server:\n")
     return server_name, port_num
 
 
@@ -32,7 +38,7 @@ def filelist(ftp):
 # Retrieves a file from the server
 def retrieve(ftp):
     filename= input("Enter filename you want to retrieve:\n")
-    # create file to store retrieved data in
+    # Create file to store retrieved data in
     try:
         localfile = open(filename, 'wb')
         ftp.retrbinary('RETR '+filename, localfile.write, 1024)
@@ -74,17 +80,20 @@ def centralquit(ftp):
 
 def main():
 
-    #establishing ftp connection
+    # Establishing FTP connection
     ftp_connection=None
     while ftp_connection is None:
         server_name, port_num = start()
         try:
             ftp_connection = make_client(server_name, port_num)
+            username = input("Enter username:\n")
+            hostname = input("Enter the host name:\n")
+            speed = input("Enter the connection speed:\n")
         except ftplib.all_errors:
             print("Could not connect to ftp server, try again\n")
             ftp_connection = None
 
-    #establishing central connection        
+    # Establishing central connection        
     central_connection = None
     while central_connection is None:
         central_server_name, central_port_num = centralstart()
