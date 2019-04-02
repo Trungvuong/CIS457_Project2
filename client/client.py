@@ -7,6 +7,12 @@ def start():
     port_num=input("Please enter the port number:\n")
     return server_name, port_num
 
+# Start of central FTP Server connection
+def central_start():
+    server_name=input("Please enter the server name:\n")
+    port_num=input("Please enter the port number:\n")
+    return server_name, port_num
+
 
 # Makes the client connection to server
 def make_client(ip, port):
@@ -41,12 +47,20 @@ def retrieve(ftp):
 # Stores file in server
 def store(ftp):
     filename=input("Enter filename you want to store:\n")
+    filename = filename.strip('\n')
     try:
-        ftp.storbinary("STOR "+ filename, open(filename, 'r'))
+        ftp.storbinary('STOR '.format(filename), open(filename, 'rb').read)
+        localfile.close()
     except IOError:
         print("File does not exist \n")
-    except ftplib.all_errors:
-        print("Error: ftp error \n")
+    except ftplib.error_reply:
+        print("Error: reply error \n")
+    except ftplib.error_temp:
+        print("Error: temp error \n")
+    except ftplib.error_perm:
+        print("Error: perm error \n")
+    except ftplib.error_proto:
+        print("Error: proto error \n")
 
 
 # End client connection to server
@@ -56,14 +70,26 @@ def quit(ftp):
 
 
 def main():
+
+    #establishing ftp connection
     ftp_connection=None
     while ftp_connection is None:
         server_name, port_num = start()
         try:
             ftp_connection = make_client(server_name, port_num)
         except ftplib.all_errors:
-            print("Could not connect to server, try again\n")
+            print("Could not connect to ftp server, try again\n")
             ftp_connection = None
+
+    #establishing central connection        
+    central_connection = None
+    while central_connection is None:
+        central_server_name, central_port_num = centralstart()
+        try:
+            central_connection = make_client(central_server_name, central_port_num)
+        except ftplib.all_errors:
+            print("Could not connect to server, try again\n")
+            central_connection = None
 
     command = None
     while command != "quit":
