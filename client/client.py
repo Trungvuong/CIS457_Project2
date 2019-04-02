@@ -8,7 +8,7 @@ def start():
     return server_name, port_num
 
 # Start of central FTP Server connection
-def central_start():
+def centralstart():
     server_name=input("Please enter the server name:\n")
     port_num=input("Please enter the port number:\n")
     return server_name, port_num
