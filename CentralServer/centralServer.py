@@ -1,38 +1,48 @@
-'''
-This is the Central Server that tracks current users 
-and files sent to site.
-
-@author Trung-Vuong Pham, Ryan Eisenbarth, and Kevin Holkeboer
-@version 1.0
-@date April 3, 2019
-'''
-
 import os
-import socket
+
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
-from pyftpdlib.servers import ThreadedFTPServer
+from pyftpdlib.servers import FTPServer
+import socket
+from threading import Thread
 
+currentData = {}
+
+def check():
+    global currentData
+    while 1:
+        fileDir = {}
+
+        files = os.listdir()
+        for file in files:
+            fileDir[file] = file
+
+        if 'new.txt' in fileDir:
+            with open(fileDir['new.txt']) as new
+                text = new.readlines()
+            if not text:
+                pass
+            else:
+                text = [i.strip() for i in text]
+                currentData[text[0]] = list(text[1:len(text)])
+                os.remove('new.txt')
+                continue
 
 def main():
-    # Authorizes the users in the server
     authorizer = DummyAuthorizer()
     authorizer.add_user("user", "pass", ".", perm="elradfmw")
-    authorizer.add_anonymous('.', perm='elradfmwM')
-    
-    # Request handlers
+    authorizer.add_anonymous(os.getcwd())
+
     handler = FTPHandler
     handler.authorizer = authorizer
     handler.banner= "Connected"
-    
-    pipe = os.popen("ip -4 route show default").read().split()
-    sckt = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sckt.connect((pipe[3], 0))
-    address = sckt.getsockname()[0]
 
-    # Creates server in port 3001
-    server = ThreadedFTPServer((address, 3001), handler)
+    server = FTPServer(("127.0.0.1", 3001), handler)
     server.serve_forever()
 
+
 if __name__ == "__main__":
+    thread = Thread(target = check())
+    thread.start()
     main()
+    thread.join()
