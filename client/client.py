@@ -65,7 +65,11 @@ def store(ftp):
 
 # End client connection to server
 def quit(ftp):
-    print("quit")
+    print("server quit")
+    ftp.quit()
+
+def centralquit(ftp):
+    print("central quit")
     ftp.quit()
 
 
@@ -93,18 +97,26 @@ def main():
 
     command = None
     while command != "quit":
-        command = input("Enter Command: LIST, RETRIEVE, STORE, QUIT: ")
-        if command.lower() == "list":
-            filelist(ftp_connection)
-        elif command.lower() == "retrieve":
-            retrieve(ftp_connection)
-        elif command.lower() == "store":
-            store(ftp_connection)
-        elif command.lower() == "quit":
-            quit(ftp_connection)
-            command = "quit"
-        else:
-            print("Invalid command, please try again\n\n")
+
+        command = input("Server(S) or Central Server(C): ")
+        
+        if command.lower() == "s":
+            command = input("Enter Command: LIST, RETRIEVE, STORE, QUIT: ")
+            if command.lower() == "list":
+                filelist(ftp_connection)
+            elif command.lower() == "retrieve":
+                retrieve(ftp_connection)
+            elif command.lower() == "store":
+                store(ftp_connection)
+            elif command.lower() == "quit":
+                quit(ftp_connection)
+                centralquit(central_connection)
+                command = "quit"
+            else:
+                print("Invalid command, please try again\n\n")
+
+        elif command.lower() == "c":
+            command = input("Enter Command: STORE, SEARCH: ")
 
 
 if __name__ == "__main__":
