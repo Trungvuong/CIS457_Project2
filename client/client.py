@@ -1,48 +1,32 @@
-''' 
+'''
 This runs the client side of our FTP Server connection 
 we have created.
 
 @author Trung-Vuong Pham, Ryan Eisenbarth, and Kevin Holekboer
 '''
+import os
+from ftplib import FTP
 
-import ftplib
+# Client object
+ftp = FTP('')
 
-# Start of client FTP Server connection
-def start():
-    server_name = input("Please enter the server hostname name:\n")
-    port_num = input("Please enter the port number for this server:\n")  
-    return server_name, port_num
+# Flag for connection status
+connection = False
 
-# Start of centralized FTP Server connection
-def centralstart():
-    server_name=input("Please enter the centralized server's name:\n")
-    port_num=input("Please enter the port number for this server:\n")
-    return server_name, port_num
-
-
-# Makes the client connection to server
-def make_client(ip, port):
-    ftp = ftplib.FTP('')
-    ftp.connect(ip, int(port))
-    ftp.login()
-    return ftp
-
-
-# Lists the directories in server
-def filelist(ftp):
-    print("List files in directory: ")
-    print(ftp.retrlines('List'))
-    print("\n\n")
-
+# Starts the FTP Server connection
+def start(ip, port):
+        ftp.connect(ip, int(port))
+        ftp.login()
+        print('Connection successful!')
+        connection = True
 
 # Retrieves a file from the server
-def retrieve(ftp):
-    filename= input("Enter filename you want to retrieve:\n")
-    # Create file to store retrieved data in
+def retrieve(filename):
+    # Open file to store retrieved data in
     try:
-        localfile = open(filename, 'wb')
-        ftp.retrbinary('RETR '+filename, localfile.write, 1024)
-        localfile.close()
+        retr_file = open(filename, 'wb')
+        ftp.retrbinary('RETR ' + filename, retr_file.write, 1024)
+        retr_file.close()
         print("File Retrieved \n\n")
     except IOError:
         print("Cannot retrieve file\n\n")
@@ -51,8 +35,7 @@ def retrieve(ftp):
 
 
 # Stores file in server
-def store(ftp):
-    filename = input("Enter the name of file to be stored \n")
+def store(filename):
     try:
         ftp.storbinary('STOR ' + filename, open(filename, 'rb'))
         print('Upload successful for ' + filename)
@@ -67,67 +50,69 @@ def store(ftp):
     except ftplib.error_proto:
         print("Error: proto error \n")
 
-
-# End client connection to server
-def quit(ftp):
-    print("server quit")
+# Retrieves the file that is being searched for by the user
+def search(keyword):
+    file_search = open("findme.txt", "w")
+    file_search.write(str(keyword))
+    file_search.close()
+    
+    # Connects to central server
+    ftp.connect('127.0.0.1', 3001)
+    ftp.login()
+    save_file = 'findme.txt'
+    ftp.storbinary('STOR' + save_file, open(save_file, 'rb'))
     ftp.quit()
 
-def centralquit(ftp):
-    print("central quit")
-    ftp.quit()
-
+    os.remove('findme.txt')
 
 def main():
+    response = input('Enter a command:\n')
+    connection = False
 
-    # Establishing FTP connection
-    ftp_connection=None
-    while ftp_connection is None:
-        server_name, port_num = start()
-        try:
-            ftp_connection = make_client(server_name, port_num)
-            username = input("Enter username:\n")
-            hostname = input("Enter the host name:\n")
-            speed = input("Enter the connection speed:\n")
-        except ftplib.all_errors:
-            print("Could not connect to ftp server, try again\n")
-            ftp_connection = None
+    # Establishing FTP connection with CONNECT command
+    if 'CONNECT' in response:
+        argument = response.split()
+        if len(argument) == 3:
+            start(argument[1], argument[2])
+            argument = []
+            main()
+        else:
+            print("CONNECT needs an ip address and port number!\n")
+            main()
 
-    # Establishing central connection        
-    central_connection = None
-    while central_connection is None:
-        central_server_name, central_port_num = centralstart()
-        try:
-            central_connection = make_client(central_server_name, central_port_num)
-        except ftplib.all_errors:
-            print("Could not connect to server, try again\n")
-            central_connection = None
-
-    command = None
-    while command != "quit":
-
-        command = input("Server(S) or Central Server(C): ")
-        
-        if command.lower() == "s":
-            command = input("Enter Command: LIST, RETRIEVE, STORE, QUIT: ")
-            if command.lower() == "list":
-                filelist(ftp_connection)
-            elif command.lower() == "retrieve":
-                retrieve(ftp_connection)
-            elif command.lower() == "store":
-                store(ftp_connection)
-            elif command.lower() == "quit":
-                quit(ftp_connection)
-                centralquit(central_connection)
-                command = "quit"
-            else:
-                print("Not a command! Please try again\n")
-
-        elif command.lower() == "c":
-            command = input("Enter Command: STORE, SEARCH: ")
-            if command.lower() == "store":
-                store(central_connection)
-
+    # Handles LIST command
+    elif 'LIST' in response:
+        ftp.retrlines('LIST')
+        main()
+    # RETRIEVE command thats retrieves the file
+    elif 'RETRIEVE' in response:
+        argument = response.split()
+        if len(argument) == 2:
+            retrieve(argument[1])
+            main()
+        else:
+            print("RETRIEVE needs a file as argument!\n")
+            main()
+    # This does the STORE command to store file on server side
+    elif 'STORE' in response:
+        argument = response.split()
+        if len(argument) == 2:
+            store(argument[1])
+            main()
+        else:
+            print("STORE needs a filename as an argument!\n")
+            main()
+    elif 'SEARCH' in response:
+        argument = response.split()
+        if len(argument) == 2:
+            search(argument[1])
+        main()
+    elif 'QUIT' in response:
+        ftp.quit()
+        print('Disconnecting')
+    else:
+        print('The commands are CONNECT <ip address, port>, LIST, RETRIEVE <filename>, and STORE <filename>')
+        main()
 if __name__ == "__main__":
     main()
 
