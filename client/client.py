@@ -27,8 +27,8 @@ def retrieve(filename):
     try:
         retr_file = open(filename, 'wb')
         ftp.retrbinary('RETR ' + filename, retr_file.write, 1024)
+        print("File Retrieved ")
         retr_file.close()
-        print("File Retrieved \n\n")
     except IOError:
         print("Cannot retrieve file\n\n")
     except ftplib.all_errors:
@@ -53,8 +53,9 @@ def store(filename):
 
 # Retrieves the file that is being searched for by the user
 def search(keyword):
-    file_search = open("findme.txt", "w")
-    file_search.write(str(keyword))
+    file_search = open("findme.txt", "r")
+    for line in file_search:
+        if keyword in line: print(line) 
     file_search.close()
     
     # Connects to central server
