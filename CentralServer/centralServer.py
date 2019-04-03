@@ -1,7 +1,8 @@
 import os, socket
+from tabulate import tabulate
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
-from pyftpdlib.servers import FTPServer
+from pyftpdlib.servers import ThreadedFTPServer
 from threading import Thread
 from ftplib import FTP
 
@@ -42,6 +43,8 @@ def check():
                         print('Could not find file')
                     os.remove('findme.txt')
                     continue
+def print_list():
+    print(tabulate(currentData, headers = ["ip", "filename"]))
 
 # Starts the server
 def main():
@@ -51,13 +54,13 @@ def main():
     handler = FTPHandler
     handler.authorizer = authorizer
     handler.banner= "Connected"
-
-    server = ThreadedFTPServer(('127.0.0.1', 1026), handler)
+                 
+    server = ThreadedFTPServer(('127.0.0.1', 3001), handler)
     server.serve_forever()
 
-
 if __name__ == "__main__":
-    thread = Thread(target = check())
+    thread = Thread(target = check)
     thread.start()
+    print_list()
     main()
     thread.join()

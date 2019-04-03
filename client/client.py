@@ -1,10 +1,11 @@
 '''
-This runs the client side of our FTP Server connection 
+This runs the client side of our FTP Server 
 we have created.
 
 @author Trung-Vuong Pham, Ryan Eisenbarth, and Kevin Holekboer
+
 '''
-import os
+import os, socket
 from ftplib import FTP
 
 # Client object
@@ -19,7 +20,19 @@ def start(ip, port):
         ftp.login()
         print('Connection successful!')
         connection = True
+        main()
 
+# Stores files of client and keyword in search
+def localDirectory():
+    ip = socket.gethostbyname(socket.gethostname())
+    new_file = open("new.txt", "w")
+    new_file.write(ip + "\n")
+    curr = os.listdir()
+    for f in curr:
+        new_file.write(f + "\n")
+    new_file.close()
+    return
+    
 # Retrieves a file from the server
 def retrieve(filename):
     # Open file to store retrieved data in
@@ -60,13 +73,13 @@ def search(keyword):
     ftp.connect('127.0.0.1', 3001)
     ftp.login()
     save_file = 'findme.txt'
-    ftp.storbinary('STOR' + save_file, open(save_file, 'rb'))
+    ftp.storbinary('STOR ' + save_file, open(save_file, 'rb'))
     ftp.quit()
-
     os.remove('findme.txt')
 
+# The main loop that does all the program prompts
 def main():
-    response = input('Enter a command:\n')
+    response = input('>>> ')
     connection = False
 
     # Establishing FTP connection with CONNECT command
@@ -102,17 +115,20 @@ def main():
         else:
             print("STORE needs a filename as an argument!\n")
             main()
+    # Proceeds to search for file
     elif 'SEARCH' in response:
         argument = response.split()
         if len(argument) == 2:
             search(argument[1])
         main()
+    # Quits the FTP Server
     elif 'QUIT' in response:
         ftp.quit()
         print('Disconnecting')
     else:
-        print('The commands are CONNECT <ip address, port>, LIST, RETRIEVE <filename>, and STORE <filename>')
+        print('The commands are CONNECT <ip address, port>, QUIT, LIST, RETRIEVE <filename>, and STORE <filename>')
         main()
 if __name__ == "__main__":
+    print('Welcome to the GV-Nap File Sharing System. \nThe FTP Client is ready. \nUse the CONNECT command to begin.')
     main()
 
