@@ -20,18 +20,6 @@ def start(ip, port):
         ftp.login()
         print('Connection successful!')
         connection = True
-        main()
-
-# Stores files of client and keyword in search
-def localDirectory():
-    ip = socket.gethostbyname(socket.gethostname())
-    new_file = open("new.txt", "w")
-    new_file.write(ip + "\n")
-    curr = os.listdir()
-    for f in curr:
-        new_file.write(f + "\n")
-    new_file.close()
-    return
     
 # Retrieves a file from the server
 def retrieve(filename):
@@ -79,6 +67,7 @@ def search(keyword):
 
 # The main loop that does all the program prompts
 def main():
+    global ftp
     response = input('>>> ')
     connection = False
 
@@ -124,10 +113,7 @@ def main():
     # Quits the FTP Server
     elif 'QUIT' in response:
         ftp.quit()
-        print('Disconnecting')
-    else:
-        print('The commands are CONNECT <ip address, port>, QUIT, LIST, RETRIEVE <filename>, and STORE <filename>')
-        main()
+        print('Disconnecting...')
 if __name__ == "__main__":
     print('Welcome to the GV-Nap File Sharing System. \nThe FTP Client is ready. \nUse the CONNECT command to begin.')
     main()
